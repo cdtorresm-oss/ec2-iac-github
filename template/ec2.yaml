@@ -3,12 +3,56 @@ Description: EC2 creada desde GitHub Actions
 
 Resources:
 
+  ServerSecurityGroupClase:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Permitir acceso HTTP y SSH
+
+      Tags:
+        - Key: Name
+          Value: SG-HTTP-Clase-CF
+
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
   MyEC2:
     Type: AWS::EC2::Instance
     Properties:
       AvailabilityZone: us-east-1a
-      ImageId: ami-0cca150d127c2216f
+
+      # Amazon Linux 2023
+      ImageId: ami-0e86e20dae9224db8
+
       InstanceType: t3.micro
+
+      SecurityGroupIds:
+        - !Ref ServerSecurityGroupClase
+
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+
+          systemctl start httpd
+          systemctl enable httpd
+
+          cat <<EOF > /var/www/html/index.html
+          <html>
+          <body>
+            <h1>EC2 desplegada 👏</h1>
+            <h2>Hola desde CloudFormation con GitHub 🚀</h2>
+          </body>
+          </html>
+          EOF
 
       Tags:
         - Key: Name
@@ -17,4 +61,9 @@ Resources:
 Outputs:
 
   InstanceId:
+    Description: ID de la instancia EC2
     Value: !Ref MyEC2
+
+  PublicIP:
+    Description: IP pública de la instancia
+    Value: !GetAtt MyEC2.PublicIp
