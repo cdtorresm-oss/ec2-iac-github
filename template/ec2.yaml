@@ -28,8 +28,7 @@ Resources:
     Properties:
       AvailabilityZone: us-east-1a
 
-      # Amazon Linux 2023
-      ImageId: ami-0e86e20dae9224db8
+      ImageId: ami-08a6efd148b1f7504
 
       InstanceType: t3.micro
 
@@ -39,8 +38,8 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
-          yum update -y
-          yum install -y httpd
+          dnf update -y
+          dnf install -y httpd
 
           systemctl start httpd
           systemctl enable httpd
@@ -48,8 +47,8 @@ Resources:
           cat <<EOF > /var/www/html/index.html
           <html>
           <body>
-            <h1>EC2 desplegada 👏</h1>
-            <h2>Hola desde CloudFormation con GitHub 🚀</h2>
+            <h1>EC2 desplegada correctamente</h1>
+            <h2>Hola desde CloudFormation con GitHub Actions</h2>
           </body>
           </html>
           EOF
